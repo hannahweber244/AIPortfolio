@@ -2345,29 +2345,6 @@
   </bcf:bibdata>
   <bcf:section number="0">
     <bcf:citekey order="0" nocite="1">*</bcf:citekey>
-    <bcf:citekey order="0" nocite="1">*</bcf:citekey>
-    <bcf:citekey order="1">TestOnlineQuelle</bcf:citekey>
-    <bcf:citekey order="2">ME12</bcf:citekey>
-    <bcf:citekey order="3">ME12</bcf:citekey>
-    <bcf:citekey order="4">ME12</bcf:citekey>
-    <bcf:citekey order="5">ME12</bcf:citekey>
-    <bcf:citekey order="6">ME12</bcf:citekey>
-    <bcf:citekey order="7">ME12</bcf:citekey>
-    <bcf:citekey order="8">TD15</bcf:citekey>
-    <bcf:citekey order="9">ME12</bcf:citekey>
-    <bcf:citekey order="9">TD15</bcf:citekey>
-    <bcf:citekey order="10">ME12</bcf:citekey>
-    <bcf:citekey order="10">TD15</bcf:citekey>
-    <bcf:citekey order="11">TestOnlineQuelle</bcf:citekey>
-    <bcf:citekey order="12">ME12</bcf:citekey>
-    <bcf:citekey order="13">ME12</bcf:citekey>
-    <bcf:citekey order="14">ME12</bcf:citekey>
-    <bcf:citekey order="15">ME12</bcf:citekey>
-    <bcf:citekey order="16">ME12</bcf:citekey>
-    <bcf:citekey order="17">TD15</bcf:citekey>
-    <bcf:citekey order="18">TD15</bcf:citekey>
-    <bcf:citekey order="19">TD15</bcf:citekey>
-    <bcf:citekey order="0" nocite="1">*</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">
