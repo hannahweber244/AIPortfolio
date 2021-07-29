@@ -255,6 +255,7 @@ class VAE_TrainPipeline(object):
 
     def generate_random_images(self, num_images, emb_size = 30, color = True, norm = False):
         self.model.eval()
+        images = list()
         with torch.no_grad():
             for i in range(num_images):
                 tensor = torch.zeros(emb_size)
@@ -283,4 +284,5 @@ class VAE_TrainPipeline(object):
                 img = cv2.resize(img, (300,300))
                 #cv2_imshow(img)
                 print('latent vector:', tensor)
-        return img
+                images.append(img)
+        return images
