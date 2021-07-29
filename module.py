@@ -30,6 +30,146 @@ from tqdm.notebook import tqdm
 #h,w = 64,64
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+class VAE_(nn.Module):
+
+    def __init__(self, emb_size = 30, sigmoid=False):
+        super(VAE_, self).__init__()
+        self.sigmoid = sigmoid
+
+        #batch normalisierungs layer
+        #self.batch_norm1 = nn.BatchNorm2d(8)
+        #self.batch_norm2 = nn.BatchNorm2d(24)
+        #self.batch_norm3 = nn.BatchNorm2d(32)
+
+        #self.batch_norm1_decode = nn.BatchNorm2d(8)
+        #self.batch_norm2_decode = nn.BatchNorm2d(24)
+        #self.batch_norm3_decode = nn.BatchNorm2d(32)
+
+        self.batch_norm1 = nn.BatchNorm2d(28)
+        self.batch_norm2 = nn.BatchNorm2d(128)
+        self.batch_norm3 = nn.BatchNorm2d(256)
+
+        self.batch_norm1_decode = nn.BatchNorm2d(28)
+        self.batch_norm2_decode = nn.BatchNorm2d(128)
+        self.batch_norm3_decode = nn.BatchNorm2d(256)
+
+        #dropout layer
+        self.dropout1 = nn.Dropout2d()
+        self.dropout2 = nn.Dropout()
+
+        #Encode-Convolutional-Layer
+        #self.cnn1 = nn.Conv2d(3, 8, kernel_size=4, stride=2)#31x31
+        #self.cnn2 = nn.Conv2d(8, 15, kernel_size = 3, stride = 1)#29x29
+        #self.cnn3 = nn.Conv2d(15, 24, kernel_size=3, stride=2)#14x14
+        #self.cnn4 = nn.Conv2d(24,32, kernel_size=3, stride=1)#12x12
+        #self.cnn5 = nn.Conv2d(32,42,kernel_size = 6, stride=3)#bilder in 3x3 dimension
+
+        self.cnn1 = nn.Conv2d(3, 28, kernel_size=4, stride=2)#31x3
+        self.cnn2 = nn.Conv2d(28, 64, kernel_size = 3, stride = 1)
+        self.cnn3 = nn.Conv2d(64, 128, kernel_size=3, stride=2)#14
+        self.cnn4 = nn.Conv2d(128,256, kernel_size=3, stride=1)#12x
+        self.cnn5 = nn.Conv2d(256,412,kernel_size = 6, stride=3)#3x3
+
+        #self.cnn3 = nn.Conv2d(5, 1, kernel_size=5, stride=2)
+
+        #linear layer, nimmt convolution entgegen
+        self.encode = nn.Linear(412*3*3, emb_size*2)#'''hier das geiche vll doch nochmal convolution so anassen dass größer?'''
+        self.decode = nn.Linear(emb_size, 412*3*3)#von repräsentationsgröße wieder auf die, die in 2d darstellungen verarbeitet werden kann
+
+        #decode convolutional layer
+        ###self.cnn1_decode = nn.ConvTranspose2d(412,256, kernel_size=6, dilation=1, stride=2)#
+        #self.cnn2_decode = nn.ConvTranspose2d(256,128, kernel_size=6, dilation=1, stride=2)#28x28
+        #self.cnn3_decode = nn.ConvTranspose2d(128,64, kernel_size=4, dilation=1, stride=2)#58x58
+        #self.cnn4_decode = nn.ConvTranspose2d(64,28, kernel_size=4, dilation=1, stride=1)#61x61
+        #self.cnn5_decode = nn.ConvTranspose2d(28,3, kernel_size=4, dilation=1, stride=1)#64x64
+
+        self.cnn1_decode = nn.ConvTranspose2d(412,256, kernel_size=6, dilation=1, stride=2)#10x10
+        self.cnn2_decode = nn.ConvTranspose2d(256,128, kernel_size=6, dilation=1, stride=2)#24x24
+        self.cnn3_decode = nn.ConvTranspose2d(128,64, kernel_size=4, dilation=1, stride=2)#50x50
+        self.cnn4_decode = nn.ConvTranspose2d(64,28, kernel_size=8, dilation=1, stride=1)#57x57
+        self.cnn5_decode = nn.ConvTranspose2d(28,3, kernel_size=8, dilation=1, stride=1)#64x64
+
+        #self.cnn1_decode = nn.ConvTranspose2d(42,32, kernel_size=6, dilation=1, stride=2)#10x10
+        #self.cnn2_decode = nn.ConvTranspose2d(32,24, kernel_size=6, dilation=1, stride=2)#24x24
+        #self.cnn3_decode = nn.ConvTranspose2d(24,15, kernel_size=4, dilation=1, stride=2)#50x50
+        #self.cnn4_decode = nn.ConvTranspose2d(15,8, kernel_size=8, dilation=1, stride=1)#57x57
+        #self.cnn5_decode = nn.ConvTranspose2d(8,3, kernel_size=8, dilation=1, stride=1)#64x64
+
+        #linear layer um log variance und mean zu erzeugen
+        self.mean = nn.Linear(emb_size*2, emb_size)
+        self.log_var = nn.Linear(emb_size*2, emb_size)
+
+    def encode_convolutions(self,x):
+        '''
+        takes input and uses convolutional layer
+        returns tensor
+        '''
+        x = F.relu(self.cnn1(x.float()))
+        x = self.batch_norm1(x)
+        x = F.relu(self.cnn2(x))
+        #x = self.dropout1(x)
+        x = F.relu(self.cnn3(x))
+        x = self.batch_norm2(x)
+        x = F.relu(self.cnn4(x))
+        x = self.batch_norm3(x)
+        x = F.relu(self.cnn5(x))
+        return x
+
+    def sample(self, x):
+        x = F.relu(self.encode(x.flatten(start_dim=1)))#flatten der bild matrix zu einem tensor
+        mean_ = self.mean(x)#layer, da die dimension auf die embeddingsize reduziert
+        #auch layer, das input auf die embeddingsize reduziert
+        log_var = torch.exp(0.5*self.log_var(x))#logvar umwandeln in normale varianz
+        assert log_var.shape == mean_.shape#check für mich
+        #uniformverteilten rauschenvektor erstellen mit dimension von log var / mean
+        n_ = torch.randn_like(log_var)
+
+        #sample aus der so berechneten verteilung ziehen
+        sample = mean_ + (n_*log_var)
+        #sample, mean und std returnen (werden für loss benötigt)
+        return sample, mean_, log_var
+
+    def decode_convolutions(self, sample_):
+        #sample mit linear decoder in so eine form bringen, dass es 
+        #in einem nächsten schritt in benötigte form für conv layer 
+        #gebracht werden kann und bild rekonstruiert werden kann
+        #sample mit hier uafzunehmen ist wegen verwendbarkeit des decoders
+        #im generationsschritt sinnvoll
+        x = F.relu(self.decode(sample_))
+
+        #reshapen der dimensionen, für richtiges convtranspose format
+        x = x.view(self.batch_size,412,3,3)#erstes decode conv nimmt 42 3x3 Bilder
+        #hier die richtige dimension!!!
+        
+        #transposed convolutions nutzen, um ursprüngliche 
+        #bildgröße wieder herzustellen
+        x = F.relu(self.cnn1_decode(x))
+        x = self.batch_norm3_decode(x)
+        x = F.relu(self.cnn2_decode(x))
+        x = self.batch_norm2_decode(x)
+        x = F.relu(self.cnn3_decode(x))
+        x = F.relu(self.cnn4_decode(x))
+        x = self.batch_norm1_decode(x)
+
+        #vorher war hier relu und danach erst sigmoid
+        if self.sigmoid:# sigmoid --> Pixel auf [0,1] Bereich
+            x = torch.sigmoid(self.cnn5_decode(x))
+        else:#bei BCEwithLogitsLoss wird sigmoid nicht benötigt
+            x = F.relu(self.cnn5_decode(x))
+        return x
+
+    def forward(self,x):
+        #encoden des inputs mit hilfe der encode convolution funktion
+        self.batch_size = x.shape[0]
+        encoded = self.encode_convolutions(x)
+        sample_, mean, std = self.sample(encoded)#sample basierend auf mean und std ziehen
+
+        #aufrufen der convolutional transposed layer für den decoder
+        #teil des VAE
+        #####sigmoid wegen bce cuda error: device side assert triggerd nn.Sigmoid(
+        reconstructed = self.decode_convolutions(sample_)
+        return reconstructed, mean, std
+
 class VAEsmall_color(nn.Module):
 
     def __init__(self, emb_size = 30, sigmoid=False):
