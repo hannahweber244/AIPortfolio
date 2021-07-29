@@ -189,7 +189,7 @@ class VAE_TrainPipeline(object):
         #aktuelle stelle im dictionary auslesen
         key = list(self.reconstruction.keys())[-1]
 
-        for batch_id, batch in tqdm(enumerate(self.batches)):
+        for batch_id, batch in enumerate(self.batches):
             self.optimizer.zero_grad()
             out, mu, std = self.model(batch.float())
             
@@ -242,8 +242,8 @@ class VAE_TrainPipeline(object):
         else:
             raise ValueError ('unknown criterion, try MSE or BCE')
         print(self.model)
-        for epoch in range(self.epochs):
-            print('epoche:', epoch+1)
+        for epoch in tqdm(range(self.epochs)):
+            #print('epoche:', epoch+1)
             #storing reconstructed images, mus, stds in list 
             self.reconstruction[epoch] = list()
             self.mus[epoch] = list()
