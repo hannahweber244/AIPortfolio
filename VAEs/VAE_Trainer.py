@@ -10,6 +10,8 @@ import os
 import copy
 import pandas as pd
 
+from tqdm import tqdm 
+
 s = 0
 random.seed(s)
 torch.manual_seed(s)
@@ -187,7 +189,7 @@ class VAE_TrainPipeline(object):
         #aktuelle stelle im dictionary auslesen
         key = list(self.reconstruction.keys())[-1]
 
-        for batch_id, batch in enumerate(self.batches):
+        for batch_id, batch in tqdm(enumerate(self.batches)):
             self.optimizer.zero_grad()
             out, mu, std = self.model(batch.float())
             
