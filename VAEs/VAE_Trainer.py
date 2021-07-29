@@ -266,7 +266,12 @@ class VAE_TrainPipeline(object):
                     tensor = torch.randn_like(torch.zeros(emb_size)).to(device)
                 #tensor = torch.randn_like(torch.zeros(emb_size)).to(device)
                 self.model.batch_size = 1
-                img = self.model.decode_convolutions(tensor).cpu()
+
+                #checken wie die decoder funktionen in VAE heißen --> sind bekannte Funktionen in Modell enthalzen?
+                if 'decode_convolutions' in dir(self.model):
+                    img = self.model.decode_convolutions(tensor).cpu()
+                elif 'decoder' in dir(self.model):
+                    img = self.model.decoder(tensor).cpu()
                 if self.color:
                     img = img.permute(0,2,3,1).detach().numpy()[0]*255
                 else:
