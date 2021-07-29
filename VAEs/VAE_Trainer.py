@@ -271,6 +271,7 @@ class VAE_TrainPipeline(object):
                 if 'decode_convolutions' in dir(self.model):
                     img = self.model.decode_convolutions(tensor).cpu()
                 elif 'decoder' in dir(self.model):
+                    tensor = tensor.reshape(1, emb_size)
                     img = self.model.decoder(tensor).cpu()
                 if self.color:
                     img = img.permute(0,2,3,1).detach().numpy()[0]*255
