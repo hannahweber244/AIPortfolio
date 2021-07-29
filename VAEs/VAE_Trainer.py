@@ -248,6 +248,7 @@ class VAE_TrainPipeline(object):
             #trainieren des modells
             train_loss = self.train()
             self.loss_log.loc[len(self.loss_log), :] = [epoch+1, train_loss]
+        return model
 
     def generate_random_images(self, num_images, emb_size = 30, color = True, norm = False):
         self.model.eval()
