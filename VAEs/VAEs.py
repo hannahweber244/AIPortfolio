@@ -5,6 +5,7 @@ import torch.optim as optim
 
 import random 
 import numpy as np
+import pandas as pd
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
