@@ -112,7 +112,7 @@ class VAE_TrainPipeline(object):
         #klasse aufgerufen und neue bilder erzeugt werden
         self.load_images()
         self.create_batches()
-        self.train_model()
+        #self.train_model()
 
     def load_images(self):
         
