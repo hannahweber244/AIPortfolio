@@ -16,7 +16,7 @@ np.random.seed(s)
 class VAE_1Conv(nn.Module):
 
     def __init__(self, sigmoid = False):
-        super(VAE, self).__init__()
+        super(VAE_1Conv, self).__init__()
 
         #True/False Wert ob Sigmoid auf letztes Layer
         self.sigmoid = sigmoid
@@ -71,7 +71,7 @@ class VAE_1Conv(nn.Module):
 class VAE_2Conv(nn.Module):
 
     def __init__(self, sigmoid = False):
-        super(VAE, self).__init__()
+        super(VAE_2Conv, self).__init__()
 
         #True/False Wert ob Sigmoid auf letztes Layer
         self.sigmoid = sigmoid
@@ -130,7 +130,7 @@ class VAE_2Conv(nn.Module):
 class VAE_3Conv(nn.Module):
 
     def __init__(self, sigmoid = False):
-        super(VAE, self).__init__()
+        super(VAE_3Conv, self).__init__()
 
         #True/False Wert ob Sigmoid auf letztes Layer
         self.sigmoid = sigmoid
