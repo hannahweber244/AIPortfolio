@@ -214,6 +214,11 @@ class VAE_TrainPipeline(object):
 
         for batch_id, batch in enumerate(self.batches):
             self.optimizer.zero_grad()
+
+            #modelle, die nur linear layer enthalten müssen im Namen mit
+            #Linear gekennzeichnet sein!
+            if 'linear' in str(type(self.model).__name__).lower():
+                batch = torch.flatten(batch, start_dim=1)
             out, mu, std = self.model(batch.float())
             
             if batch_id == 1:#nur ausgewählte bilder abspeichern um cuda memory zu sparen
