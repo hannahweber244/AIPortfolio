@@ -69,7 +69,7 @@ class VAETrainer:
 
 class VAE_TrainPipeline(object):
 
-    def __init__(self, path_images, lr=0.0005, num_epochs = 100, batch_size = 64, loss_func = 'BCE',color = True, pretrained = False, model_path = None):
+    def __init__(self, path_images, lr=0.0005, num_epochs = 100, batch_size = 64, loss_func = 'BCE',color = True, pretrained = False, model_path = None, use_augmentation = False):
         '''
         Klasse, die alle relevanten Vorverarbeitung- und Trainingsschritte 
         für einen VAE vornimmt. Parameter:
@@ -81,6 +81,7 @@ class VAE_TrainPipeline(object):
         color: True/False, ob Bilder mit 3 oder 1 Farbchannel eingelesen werden (vollständig implementiert nur für 3)
         pretrained: True/False ob ein Modell eingelesen und weiter trainiert werden soll
         model_path: Pfad zu dem einzulesenden und weiter zu trainierend Modell (wenn pretrained = True muss Pfad angegeben werden)
+        use_augmentation: True / False ob Bilder bbeim Einlesne augmentiert werden sollen
         '''
         #generelle informationen fürs training und zu den daten
         self.path = path_images
@@ -91,6 +92,7 @@ class VAE_TrainPipeline(object):
         self.batch_size = batch_size
         self.pretrained = pretrained
         self.model_path = model_path
+        self.use_augmentation = use_augmentation
 
         #modell, optimierer und lossfunction platzhalter
         self.model = None
@@ -117,6 +119,13 @@ class VAE_TrainPipeline(object):
         self.create_batches()
         #self.train_model()
 
+    def augment_image(self, img):
+        flip_ = random.choice([-1,0,1,2])
+        if flip_ == 2:#bild wird nur in der originalversion im datensatz verwendet
+            return ''
+        else:
+            return cv2.flip(img,flip_)
+
     def load_images(self):
         
         if isinstance(self.path, list):#more than one path to read images from
@@ -133,6 +142,13 @@ class VAE_TrainPipeline(object):
                     img = cv2.imread(img_path, 1)
                 else:#einlesen in schwarz weiß möglich, weiteres verarbeiten der bilder jedoch nicht!
                     img = cv2.imread(img_path, 0)
+
+                if self.use_augmentation:
+                     #bilder augmentieren und auf einheitliche größe bringen
+                    augmented = self.augment_image(img)
+                    if augmented != '':
+                        augmented = cv2.resize(augmented, (64,64))
+                        self.data.append(augmented)
                 #bilder auf einheitliche größe bringen
                 img = cv2.resize(img, (64,64))
                 self.data.append(img)
@@ -144,6 +160,13 @@ class VAE_TrainPipeline(object):
                         img = cv2.imread(img_path, 1)
                     else:#einlesen in schwarz weiß möglich, weiteres verarbeiten der bilder jedoch nicht!
                         img = cv2.imread(img_path, 0)
+
+                    if self.use_augmentation:
+                        #bilder augmentieren und auf einheitliche größe bringen
+                        augmented = self.augment_image(img)#randomly checking if image should be augmented
+                        if augmented != '':
+                            augmented = cv2.resize(augmented, (64,64))
+                            self.data.append(augmented)
                     #bilder auf einheitliche größe bringen
                     img = cv2.resize(img, (64,64))
                     self.data.append(img)
