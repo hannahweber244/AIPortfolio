@@ -6,3 +6,5 @@ Portfolio für das Fach Artifical Intelligence an der DHBW Mannheim.
 `webots_genetisch` und `webots_regelbasiert` enthalten die relevanten Datein für das Lernziel 3 <br>
 `VAEs` enthält alle weiteren Dateien für das Training von VAEs <br>
 `Lernziel4_Abgabe.ipynb`enthält die Abgabe für das Lernziel 4, in Form verschiedener VAEs
+
+Hinweis: in `module.py`ist nur die Klasse VAE_ von Relevanz!
