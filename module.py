@@ -154,7 +154,7 @@ class VAE_(nn.Module):
         #vorher war hier relu und danach erst sigmoid
         if self.sigmoid:# sigmoid --> Pixel auf [0,1] Bereich
             x = torch.sigmoid(self.cnn5_decode(x))
-        else:#bei BCEwithLogitsLoss wird sigmoid nicht benötigt
+        else:#bei BCEwithLogitsLoss wird sigmoid nicht benötigt (siehe doku)
             x = F.relu(self.cnn5_decode(x))
         return x
 

@@ -71,10 +71,6 @@ while robot.step(timestep) != -1:
     #kamera höhe und breite auslesen, um später fensterkoordinaten anpassen zu können
     x,y = camera.getWidth(), camera.getHeight()
     
-    rot = np.array([255,0,0])
-    gruen = np.array([0,255,0])
-    blau = np.array([0,0,255])
-    
     # convert image to grayscale, um Circledetection anwenden zu können
     cimg = cv2.cvtColor(np.float32(np.array(img)), cv2.COLOR_BGR2GRAY)
     # apply a blur using the median filter
@@ -120,8 +116,8 @@ while robot.step(timestep) != -1:
 
             #bild basierend auf den kreiskoordinaten ausschneiden
             img_cropped = img[xmin_:xmax_]
-            print('ausgeschnittenes image:', img_cropped)
-            print(img_cropped.shape)
+            #print('ausgeschnittenes image:', img_cropped)
+            #print(img_cropped.shape)
 
             if x_ < x/2 - 7:#kugel ist mehr links
                 direction = 'left'#richtung zwischenspeichern in der gesucht wird
@@ -129,6 +125,7 @@ while robot.step(timestep) != -1:
                     line = img_cropped[k]
                     print('line shape', line.shape)
                     mean_color = np.mean(line, axis = 0)
+                    print('shape color', mean_color.shape, mean_color)
                 #geschwindigkeiten so setzen, dass in die richtige richtung gedreht wird
                 motorRight.setVelocity(maxVelocity)
                 motorLeft.setVelocity(-2)
@@ -138,6 +135,7 @@ while robot.step(timestep) != -1:
                     line = img_cropped[k]
                     #print('line shape', line.shape)
                     mean_color = np.mean(line, axis = 0)
+                    print('shape color', mean_color.shape, mean_color)
                 for k in range(3):#für rechts wird mehr "überzeugung" benötigt --> 3 in for schleife
                     motorLeft.setVelocity(maxVelocity)
                     motorRight.setVelocity(-2)
@@ -146,8 +144,9 @@ while robot.step(timestep) != -1:
                 direction = 'forward'
                 for k in range(img_cropped.shape[0]):
                     line = img_cropped[k]
-                    #print('line shape', line.shape)
+                    print('line shape', line.shape)
                     mean_color = np.mean(line, axis = 0)
+                    print('shape color', mean_color.shape, mean_color)
                 motorRight.setVelocity(maxVelocity)
                 motorLeft.setVelocity(maxVelocity)
             else:
