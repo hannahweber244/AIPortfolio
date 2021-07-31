@@ -172,7 +172,7 @@ class VAE_TrainPipeline(object):
             #Linear gekennzeichnet sein! bspw class linearVAE(nn.Module)...
             if 'linear' in str(type(self.model).__name__).lower():#type(model).__name__ gibt klassennamen des objekts / des modells zurück
                 batch = torch.flatten(batch, start_dim=1)#flatten des bildes zu einem flachen vektor ab dimension 1 --> batchdimension bleibt bestehen (dimension 0)
-            print(batch.shape)
+            #reconstruiertes bild, mittelwert und varianz ausgeben lassen
             out, mu, std = self.model(batch.float())
             
             if batch_id == 1:#nur ausgewählte bilder abspeichern um cuda memory zu sparen
@@ -180,7 +180,6 @@ class VAE_TrainPipeline(object):
                 self.mus[key].append(mu)
                 self.stds[key].append(std)
 
-            print(batch.shape, out.shape)
             loss = self.criterion(out, batch.float())#berechnen des loss zwischen inputimage und ausgabeimage (wie sehr unterscheidet sich das generierte Bild vom eingabebild?)
             loss = self.combined_loss(loss, mu, std)#berechnen des combined loss, basierend auf verteilung (mittelwerten und varianz) und loss
             running_loss += loss.item()
@@ -240,7 +239,6 @@ class VAE_TrainPipeline(object):
         with torch.no_grad():
             for i in range(num_images):
                 tensor = torch.zeros(emb_size)
-                print(tensor.shape)
                 if not norm:
                     for k in range(tensor.shape[0]):
                         z = random.randint(-100,10)
