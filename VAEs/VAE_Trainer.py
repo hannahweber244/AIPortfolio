@@ -256,8 +256,12 @@ class VAE_TrainPipeline(object):
                     tensor = tensor.reshape(1, emb_size)
                     img = self.model.decoder(tensor).cpu()
                 if self.color:
+                    if 'linear' in str(type(self.model).__name__).lower():
+                        img = img.reshape(1,3,64,64)
                     img = img.permute(0,2,3,1).detach().numpy()[0]*255
                 else:
+                    if 'linear' in str(type(self.model).__name__).lower():
+                        img = img.reshape(1,1,64,64)
                     img = img.detach().numpy()[0][0]*255
                 #print(img.shape)
                 img = cv2.resize(img, (300,300))
