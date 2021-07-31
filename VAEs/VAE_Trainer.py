@@ -172,6 +172,7 @@ class VAE_TrainPipeline(object):
             #Linear gekennzeichnet sein! bspw class linearVAE(nn.Module)...
             if 'linear' in str(type(self.model).__name__).lower():#type(model).__name__ gibt klassennamen des objekts / des modells zurück
                 batch = torch.flatten(batch, start_dim=1)#flatten des bildes zu einem flachen vektor ab dimension 1 --> batchdimension bleibt bestehen (dimension 0)
+            print(batch.shape)
             out, mu, std = self.model(batch.float())
             
             if batch_id == 1:#nur ausgewählte bilder abspeichern um cuda memory zu sparen
