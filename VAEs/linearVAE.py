@@ -22,6 +22,8 @@ class linearVAE(nn.Module):
         #encoder und decoder werden modular in sequentials aufgebaut --> so kann decoder auch von außerhalb der klasse zur 
         #generierung neuer bilder, basierend auf zufallsvektor, auch einfach aufgerufen werden
 
+        super(linearVAE, self).__init__()
+
         #encoder als sequential defineiren
         self.encoder = nn.Sequential(nn.Linear(input_neurons, 1000),
                                     nn.ReLU(),
