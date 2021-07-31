@@ -17,7 +17,7 @@ np.random.seed(s)
 
 class linearVAE(nn.Module):
     #modellklasse definieren für einen linearen VAE --> ist als simples gegenbeispiel zum conv VAE gedacht
-    def __init__(self, input_neurons = 64*64, latent_dim = 30, sigmoid = False):
+    def __init__(self, input_neurons = 3*64*64, latent_dim = 30, sigmoid = False):
         #input_neurons ist 64*64 wenn geflattetes 64x64 Pixelbild eingelsen wird --> Pixel characters 
         #encoder und decoder werden modular in sequentials aufgebaut --> so kann decoder auch von außerhalb der klasse zur 
         #generierung neuer bilder, basierend auf zufallsvektor, auch einfach aufgerufen werden
