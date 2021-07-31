@@ -120,35 +120,42 @@ while robot.step(timestep) != -1:
             #print(img_cropped.shape)
 
             if x_ < x/2 - 7:#kugel ist mehr links
-                direction = 'left'#richtung zwischenspeichern in der gesucht wird
+                
                 for k in range(img_cropped.shape[0]):
                     line = img_cropped[k]
-                    print('line shape', line.shape)
                     mean_color = np.mean(line, axis = 0)
-                    print('shape color', mean_color.shape, mean_color)
-                #geschwindigkeiten so setzen, dass in die richtige richtung gedreht wird
-                motorRight.setVelocity(maxVelocity)
-                motorLeft.setVelocity(-2)
+                if mean_color[1] > mean_color[0] and mean_color[1] > mean_color[2]:#bedingung für grüne kugeln
+                    direction = direction#bei bekannter richtung bleiben
+                else:
+                    direction = 'left'#richtung zwischenspeichern in der gesucht wird
+                    #geschwindigkeiten so setzen, dass in die richtige richtung gedreht wird
+                    motorRight.setVelocity(maxVelocity)
+                    motorLeft.setVelocity(-2)
             elif x_ > x/2 + 7:#kugel ist mehr rechts
-                direction = 'right'
+                
                 for k in range(img_cropped.shape[0]):
                     line = img_cropped[k]
                     #print('line shape', line.shape)
                     mean_color = np.mean(line, axis = 0)
-                    print('shape color', mean_color.shape, mean_color)
-                for k in range(3):#für rechts wird mehr "überzeugung" benötigt --> 3 in for schleife
-                    motorLeft.setVelocity(maxVelocity)
-                    motorRight.setVelocity(-2)
+                if mean_color[1] > mean_color[0] and mean_color[1] > mean_color[2]:#bedingung für grüne kugeln
+                    direction = direction
+                else:
+                    direction = 'right'
+                    for k in range(3):#für rechts wird mehr "überzeugung" benötigt --> 3 in for schleife
+                        motorLeft.setVelocity(maxVelocity)
+                        motorRight.setVelocity(-2)
                 
             elif x_ == x//2:
-                direction = 'forward'
+                
                 for k in range(img_cropped.shape[0]):
                     line = img_cropped[k]
-                    print('line shape', line.shape)
                     mean_color = np.mean(line, axis = 0)
-                    print('shape color', mean_color.shape, mean_color)
-                motorRight.setVelocity(maxVelocity)
-                motorLeft.setVelocity(maxVelocity)
+                if mean_color[1] > mean_color[0] and mean_color[1] > mean_color[2]:#bedingung für grüne kugeln
+                    direction = direction#kugel ist grün --> bekannte richtung beibehalten
+                else:
+                    direction = 'forward'
+                    motorRight.setVelocity(maxVelocity)
+                    motorLeft.setVelocity(maxVelocity)
             else:
                 if direction == 'right':
                     motorRight.setVelocity(0)
