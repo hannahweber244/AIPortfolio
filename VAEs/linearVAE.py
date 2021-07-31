@@ -81,4 +81,4 @@ class linearVAE(nn.Module):
         #basierend auf sample rekonstruktion mit Hilfe von decoder anwenden
         x = self.decoder(sample)
 
-        return x
+        return x, mean_, var_
