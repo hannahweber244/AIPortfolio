@@ -172,6 +172,7 @@ class VAE_TrainPipeline(object):
                     self.data.append(img)
 
     def create_batches(self):
+        #funktion um batches zu erzeugen
         batch = list()
         random.shuffle(self.data)#mischen der Bilder 
         for k, d_  in enumerate(self.data, start = 1):
@@ -202,9 +203,9 @@ class VAE_TrainPipeline(object):
         mit Nebenbedingung der KL Divergenz, um eine Normalverteilung
         im latenten Raum zu erzwingen
         '''
-        LOSS = loss 
-        KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-        return LOSS+KLD
+        LOSS = loss # loss = loss zwischen input und generiertem bild --> entweder MSE oder BCEWithLogits
+        KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())#divergenz, die modell dazu "zwingt" einen normalverteilten latenten raum zu lernen
+        return LOSS+KLD#zusamenfassen der Divergenz und des bereits aus lossfunktion berechneten loss
 
     def train(self):
         self.model.train()
@@ -216,9 +217,9 @@ class VAE_TrainPipeline(object):
             self.optimizer.zero_grad()
 
             #modelle, die nur linear layer enthalten müssen im Namen mit
-            #Linear gekennzeichnet sein!
-            if 'linear' in str(type(self.model).__name__).lower():
-                batch = torch.flatten(batch, start_dim=1)
+            #Linear gekennzeichnet sein! bspw class linearVAE(nn.Module)...
+            if 'linear' in str(type(self.model).__name__).lower():#type(model).__name__ gibt klassennamen des objekts / des modells zurück
+                batch = torch.flatten(batch, start_dim=1)#flatten des bildes zu einem flachen vektor ab dimension 1 --> batchdimension bleibt bestehen (dimension 0)
             out, mu, std = self.model(batch.float())
             
             if batch_id == 1:#nur ausgewählte bilder abspeichern um cuda memory zu sparen
@@ -226,15 +227,13 @@ class VAE_TrainPipeline(object):
                 self.mus[key].append(mu)
                 self.stds[key].append(std)
 
-            loss = self.criterion(out, batch.float())
-            loss = self.combined_loss(loss, mu, std)
+            loss = self.criterion(out, batch.float())#berechnen des loss zwischen inputimage und ausgabeimage (wie sehr unterscheidet sich das generierte Bild vom eingabebild?)
+            loss = self.combined_loss(loss, mu, std)#berechnen des combined loss, basierend auf verteilung (mittelwerten und varianz) und loss
             running_loss += loss.item()
 
-            loss.backward()
-            self.optimizer.step()
-            if batch_id % 10 == 0:
-                #print(f"Fortschritt: {batch_id/len(self.batches)*100}% finished")
-                pass
+            loss.backward()#gradienten berechnen
+            self.optimizer.step()#gewichte basierend auf gradienten updaten
+            
         avg_loss = running_loss/len(self.batches)
         return avg_loss
 
