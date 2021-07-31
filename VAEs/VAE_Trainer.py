@@ -19,54 +19,6 @@ np.random.seed(s)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-class VAETrainer:
-
-    def __init__(self, train_batches):
-
-        #festlegen woher daten kommen --> neu einlesen oder schon in liste vorhanden?
-        if isinstance(train_batches, list):# train batches ist liste --> wird als fertige batches interpretiert
-            self.train_batches = train_batches
-        elif isinstance(train_batches, str):#train batches ist str --> wird als pfad interpretiert
-            self.path = train_batches
-        else:
-            raise ValueError('unknown type for variable train_batches')
-
-    def combined_loss(self, loss, mu, logvar):
-        '''
-        Funktion kombiniert den Rekonstruktionsloss (BCE/MSE etc.)
-        mit Nebenbedingung der KL Divergenz, um eine Normalverteilung
-        im latenten Raum zu erzwingen
-        '''
-        LOSS = loss 
-        KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-        return LOSS+KLD
-
-
-
-    def train(self, model, epochs = 100, lr = 0.0001):
-        optimizer = optim.Adam(model.parameters(), lr=lr)
-        criterion = nn.MSELoss()#weil keine Sigmoid auf letztem Layer
-        model.train()
-        for epoch in range(0,epochs):
-            print('epoche:', epoch+1)
-            loss_ = 0
-            for batch_id, batch in enumerate(self.train_batches):
-                optimizer.zero_grad()
-                batch = batch.to(device)
-                image, mu, std = model(batch.float())
-
-                loss = criterion(image, batch.float())
-                loss = self.combined_loss(loss,mu,std)
-
-                loss_ += loss.item()
-
-                loss.backward()
-                optimizer.step()
-        return model
-            #if (epoch+1)%10 == 0:
-            #    cv2_imshow(cv2.resize(batch[0].permute(1,2,0).cpu().detach().numpy()*255, (200,200)))
-            #    cv2_imshow(cv2.resize(image[0].permute(1,2,0).cpu().detach().numpy()*255, (200,200)))
-
 class VAE_TrainPipeline(object):
 
     def __init__(self, path_images, lr=0.0005, num_epochs = 100, batch_size = 64, loss_func = 'BCE',color = True, pretrained = False, model_path = None, use_augmentation = False):
@@ -227,6 +179,7 @@ class VAE_TrainPipeline(object):
                 self.mus[key].append(mu)
                 self.stds[key].append(std)
 
+            print(batch.shape, out.shape)
             loss = self.criterion(out, batch.float())#berechnen des loss zwischen inputimage und ausgabeimage (wie sehr unterscheidet sich das generierte Bild vom eingabebild?)
             loss = self.combined_loss(loss, mu, std)#berechnen des combined loss, basierend auf verteilung (mittelwerten und varianz) und loss
             running_loss += loss.item()
